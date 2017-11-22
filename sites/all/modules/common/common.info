@@ -1,0 +1,13 @@
+name = Common
+description = "这是一个公共方法库."
+package = Common
+version = VERSION
+core = 7.x
+files[] = common.module
+configure = common
+
+; Information added by Drupal.org packaging script on 2017-06-21
+version = "7.56"
+project = "common"
+datestamp = "1498069849"
+

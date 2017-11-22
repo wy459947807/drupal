@@ -1,0 +1,153 @@
+<?php
+
+include_once 'sql_annotate.article.inc';
+
+function sql_getPageList($params){
+
+    $retType['fetch']=PDO::FETCH_ASSOC;//结果集为数组类型
+    
+    $params['page']       =!empty($params['page'])?$params['page']:1;
+    $params['pageLimit']  =!empty($params['pageLimit'])?$params['pageLimit']:10;
+    $params['sqlFrom']    =!empty($params['sqlFrom'])?$params['sqlFrom']:" ";
+    $params['sqlField']   =!empty($params['sqlField'])?$params['sqlField']:" * ";
+    $params['sqlWhere']   =!empty($params['sqlWhere'])?$params['sqlWhere']:" (1=1) ";
+    $params['sqlGroupby'] =!empty($params['sqlGroupby'])?$params['sqlGroupby']:" ";
+    $params['sqlLimit']   =!empty($params['sqlLimit'])?$params['sqlLimit']:" ";
+    $params['sqlOrder']   =!empty($params['sqlOrder'])?$params['sqlOrder']:" ";
+    $params['bindValues'] =!empty($params['bindValues'])?$params['bindValues']:array();
+
+    $offset = ($params['page'] - 1) * $params['pageLimit'];
+    $sqlLimit=" limit {$offset},{$params['pageLimit']} ";
+
+    $list_sql="SELECT ".$params['sqlField']." FROM ".$params['sqlFrom']." WHERE  ".$params['sqlWhere'].$params['sqlOrder'].$params['sqlGroupby'].$sqlLimit;
+    $count_sql = "SELECT COUNT(*) as num FROM " .$params['sqlFrom']." WHERE  ".$params['sqlWhere'];
+
+    $count =  db_query($count_sql,$params['bindValues'],$retType)->fetch();
+    $list  =  db_query($list_sql,$params['bindValues'],$retType)->fetchAll();
+
+    $resultData['list']= !empty($list)?$list:null;
+
+    //分页信息
+    $resultData['pageInfo']=array();
+    $resultData['pageInfo']['page']=$params['page'];                                 //当前页数
+    $resultData['pageInfo']['pageLimit']=$params['pageLimit'];                       //每页显示条数
+    $resultData['pageInfo']['num']=$count['num'];                                    //总条数
+    $resultData['pageInfo']['pageNum']= ceil($count['num']/$params['pageLimit']);    //总页数
+    $result['data']=$resultData;
+    return $result;  
+
+}
+
+function sql_getAll(){
+    
+    $retType['fetch']=PDO::FETCH_ASSOC;//结果集为数组类型
+    
+    $params['sqlFrom']    =!empty($params['sqlFrom'])?$params['sqlFrom']:" ";
+    $params['sqlField']   =!empty($params['sqlField'])?$params['sqlField']:" * ";
+    $params['sqlWhere']   =!empty($params['sqlWhere'])?$params['sqlWhere']:" (1=1) ";
+    $params['sqlGroupby'] =!empty($params['sqlGroupby'])?$params['sqlGroupby']:" ";
+    $params['sqlLimit']   =!empty($params['sqlLimit'])?$params['sqlLimit']:" ";
+    $params['sqlOrder']   =!empty($params['sqlOrder'])?$params['sqlOrder']:" ";
+    $params['bindValues'] =!empty($params['bindValues'])?$params['bindValues']:array();
+    
+   
+    $list_sql="SELECT ".$params['sqlField']." FROM ".$params['sqlFrom']." WHERE  ".$params['sqlWhere'].$params['sqlOrder'].$params['sqlGroupby'].$params['sqlLimit'];
+    $list  =  db_query($list_sql,$params['bindValues'],$retType)->fetchAll(); 
+    $this->result['data']['list']=$list;
+    return $this->result;  
+}
+
+function sql_getOne(){
+    
+    $retType['fetch']=PDO::FETCH_ASSOC;//结果集为数组类型
+    
+    $params['sqlFrom']    =!empty($params['sqlFrom'])?$params['sqlFrom']:" ";
+    $params['sqlField']   =!empty($params['sqlField'])?$params['sqlField']:" * ";
+    $params['sqlWhere']   =!empty($params['sqlWhere'])?$params['sqlWhere']:" (1=1) ";
+    $params['sqlGroupby'] =!empty($params['sqlGroupby'])?$params['sqlGroupby']:" ";
+    $params['sqlLimit']   =!empty($params['sqlLimit'])?$params['sqlLimit']:" ";
+    $params['sqlOrder']   =!empty($params['sqlOrder'])?$params['sqlOrder']:" ";
+    $params['bindValues'] =!empty($params['bindValues'])?$params['bindValues']:array();
+    
+    $data_sql="SELECT ".$params['sqlField']." FROM ".$params['sqlFrom']." WHERE  ".$params['sqlWhere'].$params['sqlOrder'].$params['sqlGroupby'].$params['sqlLimit'];
+    $data    = db_query($data_sql,$params['bindValues'],$retType)->fetch();
+    $this->result['data']=$data;
+    return $this->result;  
+}
+
+
+
+
+
+
+//事务处理
+/*
+function my_transaction_function() {
+  // The transaction opens here.
+  $transaction = db_transaction();
+ 
+  try {
+    $id = db_insert('example')
+      ->fields(array(
+        'field1' => 'mystring',
+        'field2' => 5,
+      ))
+      ->execute();
+ 
+    //my_other_function($id);
+ 
+    return $id;
+  }
+  catch (Exception $e) {
+    $transaction->rollback();
+    watchdog_exception('my_type', $e);
+  }
+ 
+  // $transaction goes out of scope here.  Unless the it was rolled back, it
+  // gets automatically commited here.
+}
+
+//条件逻辑判断
+$query->condition(db_or()->condition(db_and()->condition('t.date', xxx, '=')->condition('t.time', xxx, '='))
+                         ->condition(db_and()->condition('t.date', xxx, '=')->condition('t.time', xxx, '=')));
+
+//更新操作
+$num_updated = db_update('joke')
+             ->fields(array(
+                  'punchline' => 'Take my wife please!',
+            ))
+            ->condition('nid', 3, '>=')
+            ->execute();
+
+//删除操作
+db_delete('imports')
+   ->condition('name' => 'Zeppo')
+   ->execute();
+
+//插入单条记录
+db_insert("table")
+ ->fields(array('field1' => 'value1', 'field2' => 'value2', 'fieldn' => $valuen))
+ ->execute();
+
+//插入多条记录
+$values[] = array('field1' => 'val1', 'field2' => 'val2', 'fieldn' => $valn);
+$values[] = array('field1' => 'value1', 'field2' => 'value2', 'fieldn' => $valuen);
+$query = db_insert(‘table')->fields(array('field1', 'field2', 'fieldn'));
+foreach ($values as $record) {
+   $query->values($record);
+}
+$query->execute();
+
+//自增自减操作
+db_update('example_table')
+  ->expression('count', 'count + 1')
+  ->condition('field1', $some_value)
+  ->expression('field2', 'field2 + :inc', array(':inc' => 2))
+  ->execute();
+
+//条件判断
+    ->condition('nid', 5,'=')  //nid等于5的条件
+    ->condition('status', 0,'>') // 状态大于0,也就是为真等于1
+    ->condition('uid', array(1,5,7),'IN') //使用IN操作，当然还可以使用 NOT IN
+    ->condition('c.city', '%' . db_like($string) . '%', 'LIKE')
+*/

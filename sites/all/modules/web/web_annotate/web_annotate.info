@@ -1,0 +1,15 @@
+name = Web_annotate
+description = "Aggregates syndicated content (RSS, RDF, and Atom feeds)."
+package = web
+version = VERSION
+core = 7.x
+files[] = web_annotate.module
+configure = annotate
+stylesheets[all][] = css/annotate.css
+scripts[] = js/annotate.js
+
+; Information added by Drupal.org packaging script on 2017-06-21
+version = "7.56"
+project = "web"
+datestamp = "1498069849"
+

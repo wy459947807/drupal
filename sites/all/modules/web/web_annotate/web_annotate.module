@@ -1,0 +1,44 @@
+<?php
+
+
+
+define('MODULE_PATH', "/".drupal_get_path('module', 'web_annotate'));
+define('ERROR_PAGE', "http://www.baidu.com");
+
+/**
+ * Implements hook_theme().
+ */
+
+function web_annotate_theme() {
+  return array(
+    'web_annotate_wrapper' => array(
+      'variables' => array('dataInfo' => NULL),
+      'file' => 'web_annotate.theme.inc',
+      'template' => 'web-annotate-wrapper',
+      'path' => drupal_get_path('module', 'web_annotate').'/tpl',
+    ), 
+  );
+}
+
+
+/**
+ * Implementation of hook_menu().
+ */
+function web_annotate_menu() {
+
+    $items['annotate/annotate_list'] = array(
+        'page callback' => 'web_annotate_list',
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+        'file' => 'web_annotate.pages.inc',
+    );
+    
+  return $items;
+}
+
+
+
+
+
+
+

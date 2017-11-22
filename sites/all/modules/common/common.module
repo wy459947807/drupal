@@ -1,0 +1,19 @@
+<?php
+
+include_once 'common.remote.inc';
+include_once 'common.validate.inc';
+
+/**
+ * Implementation of hook_menu().
+ */
+function common_menu() {
+
+    $items['common/common_test'] = array(
+        'page callback' => 'common_test',
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+        'file' => 'common.pages.inc',
+    );
+    
+  return $items;
+}

@@ -1,0 +1,22 @@
+<?php
+
+
+
+/**
+ * Implementation of hook_menu().
+ */
+function app_annotate_menu() {
+    //获取列表
+    $items['app/annotate/annotate_list'] = array(
+        'page callback' => 'app_annotate_list',
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+        'file' => 'app_annotate.article.inc',
+    );
+
+  return $items;
+}
+
+
+
+
